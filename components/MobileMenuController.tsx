@@ -8,10 +8,17 @@ export function MobileMenuController() {
     const trigger = document.querySelector<HTMLButtonElement>(".lqd-mobile-sec .navbar-toggle");
     const nav = document.getElementById("lqd-mobile-sec-nav");
     const navShell = nav?.closest<HTMLElement>(".lqd-mobile-sec-nav");
+    const backdrop = document.createElement("button");
 
     if (!trigger || !nav) {
       return;
     }
+
+    backdrop.type = "button";
+    backdrop.className = "lqd-mobile-menu-backdrop";
+    backdrop.tabIndex = -1;
+    backdrop.setAttribute("aria-label", "Close mobile menu");
+    document.body.append(backdrop);
 
     const closeMenu = () => {
       root.classList.remove("mobile-nav-activated");
@@ -42,13 +49,16 @@ export function MobileMenuController() {
     };
 
     trigger.addEventListener("click", toggleMenu);
+    backdrop.addEventListener("click", closeMenu);
     nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
     document.addEventListener("keydown", handleKeydown);
 
     return () => {
       trigger.removeEventListener("click", toggleMenu);
+      backdrop.removeEventListener("click", closeMenu);
       nav.querySelectorAll("a").forEach((link) => link.removeEventListener("click", closeMenu));
       document.removeEventListener("keydown", handleKeydown);
+      backdrop.remove();
     };
   }, []);
 
