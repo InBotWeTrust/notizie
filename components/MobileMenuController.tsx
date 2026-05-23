@@ -243,6 +243,56 @@ export function MobileMenuController() {
   }, []);
 
   useEffect(() => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const day = String(yesterday.getDate()).padStart(2, "0");
+    const month = String(yesterday.getMonth() + 1).padStart(2, "0");
+    const year = yesterday.getFullYear();
+    const date = `${day}.${month}.${year}`;
+    const datePattern = /\b\d{2}\.\d{2}\.\d{4}\b/g;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const textNodes: Text[] = [];
+    let node = walker.nextNode();
+
+    while (node) {
+      if (node.textContent && datePattern.test(node.textContent)) {
+        textNodes.push(node as Text);
+      }
+      datePattern.lastIndex = 0;
+      node = walker.nextNode();
+    }
+
+    textNodes.forEach((textNode) => {
+      textNode.textContent = textNode.textContent?.replace(datePattern, date) ?? "";
+    });
+  }, []);
+
+  useEffect(() => {
+    const readMoreFigure = document.querySelector<HTMLElement>(".elementor-element-b263fe8 figure");
+    const readMoreHotspots =
+      readMoreFigure && !readMoreFigure.querySelector(".read-more-hotspot")
+        ? [
+            { left: 2, top: 1, width: 30, height: 26 },
+            { left: 35, top: 1, width: 30, height: 26 },
+            { left: 68, top: 1, width: 30, height: 26 },
+            { left: 2, top: 48, width: 30, height: 26 },
+            { left: 35, top: 48, width: 30, height: 26 },
+            { left: 68, top: 48, width: 30, height: 26 },
+          ].map((rect, index) => {
+            const link = document.createElement("a");
+            link.href = "#form";
+            link.className = "read-more-hotspot";
+            link.setAttribute("aria-label", `Vai al modulo ${index + 1}`);
+            link.style.left = `${rect.left}%`;
+            link.style.top = `${rect.top}%`;
+            link.style.width = `${rect.width}%`;
+            link.style.height = `${rect.height}%`;
+            readMoreFigure.append(link);
+
+            return link;
+          })
+        : [];
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href="#form"]'));
     const pendingTimers = new Set<number>();
 
@@ -271,7 +321,7 @@ export function MobileMenuController() {
       pendingTimers.add(timer);
     };
 
-    const handleAnchorClick = (event: MouseEvent) => {
+    const handleAnchorClick = (event: Event) => {
       event.preventDefault();
       document.documentElement.classList.remove("mobile-nav-activated");
       window.history.pushState(null, "", "#form");
@@ -284,6 +334,7 @@ export function MobileMenuController() {
 
     return () => {
       links.forEach((link) => link.removeEventListener("click", handleAnchorClick));
+      readMoreHotspots.forEach((link) => link.remove());
       pendingTimers.forEach((timer) => window.clearTimeout(timer));
     };
   }, []);

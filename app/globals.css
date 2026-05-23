@@ -1310,3 +1310,20 @@ body .elementor.elementor-10248 .elementor-element.elementor-element-8dbb69a.e-c
     pointer-events: none !important;
   }
 }
+
+.elementor-element-b263fe8 figure {
+  position: relative;
+}
+
+.read-more-hotspot {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  cursor: pointer;
+  background: transparent;
+}
+
+.read-more-hotspot:focus-visible {
+  outline: 2px solid #ff1a1a;
+  outline-offset: 2px;
+}
